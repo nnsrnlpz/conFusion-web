@@ -1,4 +1,4 @@
-export class Leader{
+export class Leader {
     id!: string;
     name!: string;
     image!: string;
