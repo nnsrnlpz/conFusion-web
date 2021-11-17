@@ -21,13 +21,13 @@ export class ContactComponent implements OnInit {
   validationMessages: any = {
     'firstname': {
       'required': 'First name is required.',
-      'minlenght': 'First name must be at least 2 characters long.',
-      'maxlenght': 'First name cannot be more than 25 characters.'
+      'minlength': 'First name must be at least 2 characters long.',
+      'maxlength': 'First name cannot be more than 25 characters.'
     },
     'lastname': {
       'required': 'Last name is required.',
-      'minlenght': 'Last name must be at least 2 characters long.',
-      'maxlenght': 'Last name cannot be more than 25 characters.'
+      'minlength': 'Last name must be at least 2 characters long.',
+      'maxlength': 'Last name cannot be more than 25 characters.'
     },
     'telnum': {
       'required': 'Telephone number is required.',
@@ -76,7 +76,7 @@ export class ContactComponent implements OnInit {
         // clear previous errors
         this.formErrors[field] = '';
         const control = form.get(field);
-        if (control && control.dirty && ! control.valid) {
+        if (control && control.dirty && !control.valid) {
           const messages = this.validationMessages[field];
           for (const key in control.errors) {
             if (control.errors.hasOwnProperty(key)){
