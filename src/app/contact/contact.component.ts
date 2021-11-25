@@ -1,7 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { Form, FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Feedback, ContactType } from '../shared/feedback';
 import { flyInOut, expand } from '../animations/app.animations';
+import { Params, ActivatedRoute } from '@angular/router';
+import { switchMap } from 'rxjs';
+import { FeedbackService } from '../services/feedback.service';
 
 @Component({
   selector: 'app-contact',
@@ -40,7 +43,7 @@ export class ContactComponent implements OnInit {
     },
     'telnum': {
       'required': 'Telephone number is required.',
-      'pattern': 'Telephone number can only contain digits.'
+      'pattern': 'Telephone number can only contain digits and must have a lenght of 9.'
     },
     'email': {
       'required': 'Email is requered.',
@@ -51,12 +54,23 @@ export class ContactComponent implements OnInit {
   feedbackForm!: FormGroup;
   feedback!: Feedback;
   contactType = ContactType;
+  feedbackCopy!: Feedback;
+  errMess: string;
+  submitted: boolean = false;
+  sent: boolean = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder,
+    private feedbackService: FeedbackService,
+    private route: ActivatedRoute,
+    @Inject('BaseURL') public BaseURL: any) {
     this.createForm();
    }
 
   ngOnInit(): void {
+    this.route.params
+      .pipe(switchMap((params: Params) => this.feedbackService.submitFeedback(params['feedback'])))
+        .subscribe(feedback => {this.feedback = feedback; this.feedbackCopy = feedback;},
+          errmess => this.errMess = <any>errmess);
   }
 
   createForm() {
@@ -98,8 +112,23 @@ export class ContactComponent implements OnInit {
   }
 
   onSubmit() {
+
+    this.sent = true;
+
     this.feedback = this.feedbackForm.value;
     console.log(this.feedback);
+
+    this.feedbackCopy = this.feedback;
+
+    this.feedbackService.submitFeedback(this.feedbackCopy)
+      .subscribe(feedback => {
+        this.feedback = feedback; this.feedbackCopy = feedback; this.submitted = true;
+        setTimeout(()=>{                           
+          this.submitted = false;
+     }, 3000);;
+      },
+      errmess => { this.feedback = null; this.feedbackCopy = null; this.errMess = <any>errmess; });
+
     this.feedbackForm.reset({
       firstname: '',
       lastname: '',
